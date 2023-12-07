@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PersonService } from './person.service';
+import { PeopleService } from './people.service';
 import { DB, DBProvider } from '../database';
 import { Person } from '../database/types';
 import { v4 as uuid4 } from 'uuid';
 
-describe('PersonService', () => {
-  let personService: PersonService;
+describe('PeopleService', () => {
+  let PeopleService: PeopleService;
   let database: jest.Mocked<DB>;
 
   beforeEach(async () => {
@@ -13,17 +13,17 @@ describe('PersonService', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        PersonService,
+        PeopleService,
         dbProvider,
       ],
     }).compile();
 
-    personService = module.get<PersonService>(PersonService);
+    PeopleService = module.get<PeopleService>(PeopleService);
     database = module.get<jest.Mocked<DB>>(DB);
   });
 
   it('should be defined', () => {
-    expect(personService).toBeDefined();
+    expect(PeopleService).toBeDefined();
   });
 
   describe('createPerson', () => {
@@ -37,7 +37,7 @@ describe('PersonService', () => {
         accounts: []
       };
       const expectedResult = personData;
-      const result = await personService.createPerson(personData);
+      const result = await PeopleService.createPerson(personData);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -46,7 +46,7 @@ describe('PersonService', () => {
     it('should list all people when no id is provided', async () => {
       const expectedResult = database.data;
 
-      const result = await personService.listPeople(null);
+      const result = await PeopleService.listPeople(null);
       expect(result).toEqual(expectedResult);
     });
 
@@ -54,7 +54,7 @@ describe('PersonService', () => {
       const id = Object.keys(database.data)[0];
       const expectedResult = database.data[id];
 
-      const result = await personService.listPeople(id);
+      const result = await PeopleService.listPeople(id);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -70,7 +70,7 @@ describe('PersonService', () => {
         ...personData,
       };
 
-      const result = await personService.updatePerson(id, personData);
+      const result = await PeopleService.updatePerson(id, personData);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -79,7 +79,7 @@ describe('PersonService', () => {
     it('should delete a person', async () => {
       const id = Object.keys(database.data)[0];
 
-      const result = await personService.deletePerson(id);
+      const result = await PeopleService.deletePerson(id);
       expect(result).toEqual(id);
     });
   });

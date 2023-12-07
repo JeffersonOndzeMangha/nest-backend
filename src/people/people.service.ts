@@ -4,7 +4,7 @@ import { DB } from '../database';
 const database = new DB('people');
 
 @Injectable()
-export class PersonService {
+export class PeopleService {
     async createPerson(body: any) {
         return database.create(body);
     }

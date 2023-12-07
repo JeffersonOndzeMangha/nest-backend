@@ -6,30 +6,30 @@ import { AccountController } from './account/account.controller';
 import { AccountService } from './account/account.service';
 import { TransactionModule } from './transaction/transaction.module';
 import { AccountModule } from './account/account.module';
-import { PersonModule } from './person/person.module';
+import { PeopleModule } from './people/people.module';
 import { TransactionController } from './transaction/transaction.controller';
-import { PersonController } from './person/person.controller';
+import { PeopleConroller } from './people/people.controller';
 import { TransactionService } from './transaction/transaction.service';
-import { PersonService } from './person/person.service';
+import { PeopleService } from './people/people.service';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     AccountModule,
     TransactionModule,
-    PersonModule,
+    PeopleModule,
   ],
   controllers: [
     AppController,
     AccountController,
     TransactionController,
-    PersonController
+    PeopleConroller
   ],
   providers: [
     AppService,
     AccountService,
     TransactionService,
-    PersonService
+    PeopleService
   ],
 })
 export class AppModule {}

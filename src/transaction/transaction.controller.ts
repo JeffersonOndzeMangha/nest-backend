@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { TransactionService } from './transaction.service';
 
-@Controller('transaction')
+@Controller('transactions')
 export class TransactionController {
     constructor(private readonly transactionService: TransactionService) {}
 
@@ -15,6 +15,13 @@ export class TransactionController {
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
+    }
+
+    @Get('/')
+    async listAllTransactions(
+        @Res() res: any
+    ) {
+        return res.status(HttpStatus.OK).send('Got to transactions');
     }
 
     @Get('/list/:id')

@@ -1,17 +1,37 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
-import { PersonService } from './person.service';
+import { PeopleService } from './people.service';
 
-@Controller('person')
-export class PersonController {
-    constructor(private readonly personService: PersonService) {}
+@Controller('people')
+export class PeopleConroller {
+    constructor(private readonly PeopleService: PeopleService) {}
 
     @Post('/create')
     async createPerson(
         @Body() body: any, @Res() res: any
     ) {
         try {
-            const person = await this.personService.createPerson(body);
+            const person = await this.PeopleService.createPerson(body);
             return res.status(HttpStatus.CREATED).json(person);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Get('')
+    async listAllPeople(
+        @Res() res: any
+    ) {
+        return res.status(HttpStatus.OK).send('Got to people');
+    }
+
+    @Get('/list')
+    async listAll(
+        @Res() res: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const person = await this.PeopleService.listPeople(null);
+            return res.status(HttpStatus.OK).json(person);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
@@ -23,7 +43,7 @@ export class PersonController {
         @Param('id') id: string
     ) {
         try {
-            const person = await this.personService.listPeople(id);
+            const person = await this.PeopleService.listPeople(id);
             return res.status(HttpStatus.OK).json(person);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
@@ -37,7 +57,7 @@ export class PersonController {
         @Body() body: any
     ) {
         try {
-            const person = await this.personService.updatePerson(id, body);
+            const person = await this.PeopleService.updatePerson(id, body);
             return res.status(HttpStatus.OK).json(person);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
@@ -50,7 +70,7 @@ export class PersonController {
         @Param('id') id: string
     ) {
         try {
-            const person = await this.personService.deletePerson(id);
+            const person = await this.PeopleService.deletePerson(id);
             return res.status(HttpStatus.OK).json(person);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
