@@ -1,23 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { DB } from 'src/database';
+import { DB } from '../database';
 
 const database = new DB('transactions');
 
 @Injectable()
 export class TransactionService {
     async createTransaction(body: any) {
-        return body;
+        return database.create(body);
     }
 
     async listTransactions(id: string) {
-        return id;
+        if (id) {
+            return database.findOne(id);
+        }
+        return database.find();
     }
 
     async updateTransaction(id: string, body: any) {
-        return { id, ...body };
+        return database.update(id, body);
     }
 
     async deleteTransaction(id: string) {
-        return id;
+        return database.delete(id);
     }
 }
