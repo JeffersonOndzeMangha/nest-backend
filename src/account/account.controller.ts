@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpStatus, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { AccountService } from './account.service';
 
 @Controller('account')
@@ -33,10 +33,11 @@ export class AccountController {
     @Put('/update/:id')
     async updateAccount(
         @Res() res: any,
-        @Body() body: any
+        @Body() body: any,
+        @Param('id') id: string
     ) {
         try {
-            const account = await this.accountService.updateAccount(body);
+            const account = await this.accountService.updateAccount(id, body);
             return res.status(HttpStatus.OK).json(account);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);

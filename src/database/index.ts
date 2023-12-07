@@ -1,5 +1,5 @@
-import fs from 'fs';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
 
 export class DB {
     public name: string;
@@ -9,14 +9,21 @@ export class DB {
 
     constructor(name: string) {
         this.name = name;
-        this.data = JSON.parse(fs.readFileSync(`../database/${name}.json`, 'utf8'));
+        this.read();
     }
 
-    private async write() {
-        fs.writeFileSync(`../database/${this.name}.json`, JSON.stringify(this.data));
+    async read() {
+        this.data = JSON.parse(fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}');
+    }
+
+    async write() {
+        fs.writeFileSync(`src/database/${this.name}.json`, JSON.stringify(this.data));
+        this.read();
     }
 
     async find() {
+        if (this.data) return this.data;
+        await this.read();
         return this.data;
     }
 
@@ -25,7 +32,7 @@ export class DB {
     }
 
     async create(newData: any) {
-        const id = uuidv4();
+        const id = newData.id ?? uuidv4();
         this.data[id] = newData;
         await this.write();
         return this.data[id];
@@ -34,7 +41,7 @@ export class DB {
     async update(id: string, newData: any) {
         this.data[id] = {...this.data[id], ...newData};
         await this.write();
-        return newData;
+        return this.data[id];
     }
 
     async delete(id: string) {
@@ -49,3 +56,36 @@ export class DB {
         return this.data;
     }
 }
+
+export const DBProvider = (name: string) => {
+    return {
+        provide: DB,
+        useFactory: () => {
+            const mockDatabase = {
+                name: name,
+                data: JSON.parse(fs.readFileSync(`src/database/${name}.json`, 'utf8') ?? '{}'),
+                create: jest.fn(),
+                find: jest.fn(),
+                findOne: jest.fn(),
+                update: jest.fn(),
+                delete: jest.fn(),
+                read: jest.fn(),
+                write: jest.fn(),
+                deleteAll: jest.fn(),
+            };
+            return mockDatabase;
+        },
+    };
+};
+
+// export const database = {
+//     accounts: new DB('accounts'),
+//     people: new DB('people'),
+//     transactions: new DB('transactions'),
+// };
+
+// export const resetDatabase = async () => {
+//     await database.accounts.deleteAll();
+//     await database.people.deleteAll();
+//     await database.transactions.deleteAll();
+// };

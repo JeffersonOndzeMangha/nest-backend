@@ -1,8 +1,15 @@
+import { type } from "os";
+
 type Maybe<T> = NonNullable<T> | undefined;
 
-enum AccountType {
+export enum AccountType {
     CHECKING = 'CHECKING',
     SAVINGS = 'SAVINGS',
+}
+
+export enum TransactionType {
+    DEPOSIT = 'DEPOSIT',
+    WITHDRAWAL = 'WITHDRAWAL',
 }
 
 export type Person = {
@@ -11,7 +18,7 @@ export type Person = {
     document: string,
     birthDate: string,
     email: string,
-    accounts: [Account['id']],
+    accounts: Array<Account['id']>,
 }
 
 export type Account = {
@@ -21,13 +28,14 @@ export type Account = {
     dailyWithdrawalLimit: number,
     activeFlag: Maybe<String>,
     accountType: AccountType,
-    createdDate: Date,
-    transactions: [Transaction['id']],
+    createdDate: string,
+    transactions: [Transaction['id']?],
 }
 
 export type Transaction = {
     id: string,
-    accounts: [Account['id']],
+    accounts: Array<Account['id']>,
     amount: number,
-    transactionDate: Date,
+    transactionDate: string,
+    type: TransactionType,
 }
