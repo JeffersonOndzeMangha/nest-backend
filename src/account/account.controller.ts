@@ -1,5 +1,6 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
+import { IsAccountOwnerGuard } from 'src/guards/is-account-owner.guard';
 
 @Controller('accounts')
 export class AccountController {
@@ -51,6 +52,51 @@ export class AccountController {
     ) {
         try {
             const account = await this.accountService.deleteAccount(body);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Post('/deposit/:id')
+    @UseGuards(IsAccountOwnerGuard)
+    async depositAccount(
+        @Res() res: any,
+        @Body() body: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.deposit(id, body);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Post('/withdraw/:id')
+    @UseGuards(IsAccountOwnerGuard)
+    async withdrawAccount(
+        @Res() res: any,
+        @Body() body: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.withdraw(id, body);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Post('/transfer/:id')
+    @UseGuards(IsAccountOwnerGuard)
+    async transferAccount(
+        @Res() res: any,
+        @Body() body: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.transfer(id, body);
             return res.status(HttpStatus.OK).json(account);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
