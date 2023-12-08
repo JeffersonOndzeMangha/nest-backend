@@ -9,11 +9,11 @@ export class DB {
 
     constructor(name: string) {
         this.name = name;
-        this.read();
+        this.data = this.read();
     }
 
-    async read() {
-        this.data = JSON.parse(fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}');
+    read() {
+        return JSON.parse(fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}');
     }
 
     async write() {
@@ -28,7 +28,7 @@ export class DB {
     }
 
     async findOne(id: string) {
-        return this.data[id];
+        return this.data[id] ?? null;
     }
 
     async create(newData: any) {
