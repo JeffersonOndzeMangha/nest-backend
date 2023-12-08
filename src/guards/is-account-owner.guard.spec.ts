@@ -38,4 +38,26 @@ describe('IsAccountOwnerGuard', () => {
     const result = await guard.canActivate(context as any);
     expect(result).toBe(true);
   });
+
+  it('should return an error', async () => {
+    const guard = new IsAccountOwnerGuard();
+    const account = await database.data[Object.keys(database.data)[0]];
+
+    const context = {
+      switchToHttp: () => ({
+        getRequest: () => ({
+          params: { id: account.id },
+          body: {
+            accountOwner: '123',
+          }
+        }),
+      }),
+    };
+    try {
+      await guard.canActivate(context as any);
+    } catch (error) {
+      expect(error.message).toBe('Unauthorized');
+    }
+  });
+
 });
