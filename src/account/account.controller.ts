@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { IsAccountOwnerGuard } from 'src/guards/is-account-owner.guard';
+import { IsAccountOwnerGuard } from '../guards/is-account-owner.guard';
 
 @Controller('accounts')
 export class AccountController {
