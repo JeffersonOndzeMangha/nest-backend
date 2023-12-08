@@ -2,7 +2,7 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res } from
 import { PeopleService } from './people.service';
 
 @Controller('people')
-export class PeopleConroller {
+export class PeopleController {
     constructor(private readonly PeopleService: PeopleService) {}
 
     @Post('/create')

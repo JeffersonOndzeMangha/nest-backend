@@ -1,11 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PeopleService } from './people.service';
 import { DB, DBProvider } from '../database';
 import { Person } from '../database/types';
 import { v4 as uuid4 } from 'uuid';
+import { PeopleService } from './people.service';
 
 describe('PeopleService', () => {
-  let PeopleService: PeopleService;
+  let peopleService: PeopleService;
   let database: jest.Mocked<DB>;
 
   beforeEach(async () => {
@@ -18,7 +18,7 @@ describe('PeopleService', () => {
       ],
     }).compile();
 
-    PeopleService = module.get<PeopleService>(PeopleService);
+    peopleService = module.get<PeopleService>(PeopleService);
     database = module.get<jest.Mocked<DB>>(DB);
   });
 
@@ -37,7 +37,7 @@ describe('PeopleService', () => {
         accounts: []
       };
       const expectedResult = personData;
-      const result = await PeopleService.createPerson(personData);
+      const result = await peopleService.createPerson(personData);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -46,7 +46,7 @@ describe('PeopleService', () => {
     it('should list all people when no id is provided', async () => {
       const expectedResult = database.data;
 
-      const result = await PeopleService.listPeople(null);
+      const result = await peopleService.listPeople(null);
       expect(result).toEqual(expectedResult);
     });
 
@@ -54,7 +54,7 @@ describe('PeopleService', () => {
       const id = Object.keys(database.data)[0];
       const expectedResult = database.data[id];
 
-      const result = await PeopleService.listPeople(id);
+      const result = await peopleService.listPeople(id);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -70,7 +70,7 @@ describe('PeopleService', () => {
         ...personData,
       };
 
-      const result = await PeopleService.updatePerson(id, personData);
+      const result = await peopleService.updatePerson(id, personData);
       expect(result).toEqual(expectedResult);
     });
   });
@@ -79,7 +79,7 @@ describe('PeopleService', () => {
     it('should delete a person', async () => {
       const id = Object.keys(database.data)[0];
 
-      const result = await PeopleService.deletePerson(id);
+      const result = await peopleService.deletePerson(id);
       expect(result).toEqual(id);
     });
   });

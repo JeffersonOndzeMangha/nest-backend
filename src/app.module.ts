@@ -8,7 +8,7 @@ import { TransactionModule } from './transaction/transaction.module';
 import { AccountModule } from './account/account.module';
 import { PeopleModule } from './people/people.module';
 import { TransactionController } from './transaction/transaction.controller';
-import { PeopleConroller } from './people/people.controller';
+import { PeopleController } from './people/people.controller';
 import { TransactionService } from './transaction/transaction.service';
 import { PeopleService } from './people/people.service';
 
@@ -23,7 +23,7 @@ import { PeopleService } from './people/people.service';
     AppController,
     AccountController,
     TransactionController,
-    PeopleConroller
+    PeopleController
   ],
   providers: [
     AppService,
