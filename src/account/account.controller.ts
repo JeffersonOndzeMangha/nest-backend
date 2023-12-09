@@ -18,7 +18,21 @@ export class AccountController {
         }
     }
 
-    @Get('/list/:id')
+    @Get('/:id')
+    @UseGuards(IsAccountOwnerGuard)
+    async getAccount(
+        @Res() res: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.listAccounts(id);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Get('/list')
     async listAccounts(
         @Res() res: any,
         @Body() body: any
@@ -102,4 +116,33 @@ export class AccountController {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
     }
+
+    @Get('/:id/balance')
+    @UseGuards(IsAccountOwnerGuard)
+    async getBalance(
+        @Res() res: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.getBalance(id);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
+    @Get('/:id/statement')
+    @UseGuards(IsAccountOwnerGuard)
+    async getStatement(
+        @Res() res: any,
+        @Param('id') id: string
+    ) {
+        try {
+            const account = await this.accountService.getStatement(id);
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
 }

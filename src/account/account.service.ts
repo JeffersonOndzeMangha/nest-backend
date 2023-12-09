@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DB } from '../database';
 import { TransactionService } from '../transaction/transaction.service';
-import { TransactionStatus, TransactionType } from '../database/types';
+import { Account, Transaction, TransactionStatus, TransactionType } from '../database/types';
 import { v4 as uuid4 } from 'uuid';
 
 @Injectable()
@@ -30,6 +30,17 @@ export class AccountService {
 
     async deleteAccount(id: string) {
         return this.database.delete(id);
+    }
+
+    async getBalance(id: string) {
+        const account:Account = await this.database.findOne(id);
+        return account.balance;
+    }
+
+    async getStatement(id: string) {
+        const resp = await this.transactionService.listTransactions(null);
+        const transactions = Object.values(resp).filter((transaction: Transaction) => transaction.accounts.includes(id));
+        return transactions;
     }
 
     async deposit(id: string, body: any) {

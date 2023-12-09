@@ -1,14 +1,16 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AccountService } from './account.service';
 import { DB, DBProvider } from '../database';
-import { Account, AccountType } from '../database/types';
+import { Account, AccountType, Transaction } from '../database/types';
 import { v4 as uuid4 } from 'uuid';
+import { TransactionService } from '../transaction/transaction.service';
 
 export const toFixedNumber = (num: number) => Number(num.toFixed(2));
 
 describe('AccountService', () => {
   let accountService: AccountService;
   let database: DB;
+  let transactionService: TransactionService;
 
   beforeEach(async () => {
     const dbProvider = DBProvider('accounts');
@@ -16,11 +18,13 @@ describe('AccountService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AccountService,
+        TransactionService,
         dbProvider,
       ],
     }).compile();
 
     accountService = module.get<AccountService>(AccountService);
+    transactionService = module.get<TransactionService>(TransactionService);
     database = module.get<DB>(DB);
   });
 
@@ -44,6 +48,24 @@ describe('AccountService', () => {
       const expectedResult = accountData;
 
       const result = await accountService.createAccount(accountData);
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('getAccountAndInfo', () => {
+    it('should get an account balance', async () => {
+      const id = Object.keys(database.data)[0];
+      const expectedResult = database.data[id].balance;
+
+      const result = await accountService.getBalance(id);
+      expect(result).toEqual(expectedResult);
+    });
+
+    it('should get an account statement', async () => {
+      const id = Object.keys(database.data)[0];
+      const expectedResult = Object.values(transactionService.database.data).filter((transaction: Transaction) => transaction.accounts.includes(id));
+
+      const result = await accountService.getStatement(id);
       expect(result).toEqual(expectedResult);
     });
   });
