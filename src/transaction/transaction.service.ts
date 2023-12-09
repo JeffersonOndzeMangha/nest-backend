@@ -1,26 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { DB } from '../database';
 
-const database = new DB('transactions');
-
 @Injectable()
 export class TransactionService {
+    database: DB;
+
+    constructor() {
+        this.database = new DB('transactions');
+    }
+
     async createTransaction(body: any) {
-        return database.create(body);
+        return this.database.create({
+            ...body,
+            transactionDate: new Date().toLocaleDateString()
+        });
     }
 
     async listTransactions(id: string) {
         if (id) {
-            return database.findOne(id);
+            return this.database.findOne(id);
         }
-        return database.find();
+        return this.database.find();
     }
 
     async updateTransaction(id: string, body: any) {
-        return database.update(id, body);
+        return this.database.update(id, body);
     }
 
     async deleteTransaction(id: string) {
-        return database.delete(id);
+        return this.database.delete(id);
     }
 }

@@ -1,62 +1,106 @@
 import { Injectable } from '@nestjs/common';
 import { DB } from '../database';
-
-const database = new DB('accounts');
+import { TransactionService } from '../transaction/transaction.service';
+import { TransactionStatus, TransactionType } from '../database/types';
+import { v4 as uuid4 } from 'uuid';
 
 @Injectable()
 export class AccountService {
+    transactionService: TransactionService;
+    database: DB;
+
+    constructor() {
+        this.transactionService = new TransactionService();
+        this.database = new DB('accounts');
+    }
     async createAccount(body: any) {
-        return database.create(body);
+        return this.database.create(body);
     }
 
     async listAccounts(id: any) {
         if (id) {
-            return database.findOne(id);
+            return this.database.findOne(id);
         }
-        return database.find();
+        return this.database.find();
     }
 
     async updateAccount(id: string, body: any) {
-        return database.update(id, body);
+        return this.database.update(id, body);
     }
 
     async deleteAccount(id: string) {
-        return database.delete(id);
+        return this.database.delete(id);
     }
 
     async deposit(id: string, body: any) {
-        const account = await database.findOne(id);
+        const account = await this.database.findOne(id);
+        const transaction = await this.transactionService.createTransaction({
+            id: uuid4(),
+            amount: body.amount,
+            type: TransactionType.DEPOSIT,
+            status: TransactionStatus.PENDING,
+            accounts: [id],
+        });
         const newBalance = account.balance + body.amount;
-        return database.update(id, { balance: newBalance });
+        try {
+            const resp = await this.database.update(id, { balance: newBalance });
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.COMPLETED });
+            return resp;
+        } catch (error) {
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.FAILED });
+            throw error;
+        }
     }
 
     async withdraw(id: string, body: any) {
-        const account = await database.findOne(id);
+        const account = await this.database.findOne(id);
+        const transaction = await this.transactionService.createTransaction({
+            id: uuid4(),
+            amount: body.amount,
+            type: TransactionType.WITHDRAWAL,
+            status: TransactionStatus.PENDING,
+            accounts: [id],
+        });
         const newBalance = account.balance - body.amount;
-        return database.update(id, { balance: newBalance });
+        try {
+            const resp = await this.database.update(id, { balance: newBalance });
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.COMPLETED });
+            return resp;
+        } catch (error) {
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.FAILED });
+            throw error;
+        }
     }
 
     async transfer(id: string, body: any) {
-        const account = await database.findOne(id);
-        const dAccount = await database.findOne(body.destinationAccount);
-        if (!dAccount) {
-            console.warn("Destination account not found");
-            throw new Error("Destination account not found");
-        }
-        console.log("OLD BALANCE", account.balance);
-        console.log("OLD DESTINATION BALANCE", dAccount.balance);
         const { amount, destinationAccount } = body;
-        console.log("AMOUNT", amount);
-        const newBalance = account.balance - amount;
-        const nAccount = await database.update(id, { balance: newBalance });
-        console.log("NEW BALANCE", nAccount.balance);
-        const destinationAccountData = await database.findOne(destinationAccount);
-        const newDestinationBalance = destinationAccountData.balance + amount;
-        const nDAccount = await database.update(destinationAccount, { balance: newDestinationBalance });
-        console.log("NEW DESTINATION BALANCE", nDAccount.balance);
-        return {
-            [id]: nAccount,
-            [destinationAccount]: nDAccount,
-        };
+        const transaction = await this.transactionService.createTransaction({
+            id: uuid4(),
+            amount: amount,
+            type: TransactionType.TRANSFER,
+            status: TransactionStatus.PENDING,
+            accounts: [id, destinationAccount],
+        });
+        try {
+            const account = await this.database.findOne(id);
+            const dAccount = await this.database.findOne(destinationAccount);
+            console.log("OLD BALANCE", account.balance);
+            console.log("OLD DESTINATION BALANCE", dAccount.balance);
+            console.log("AMOUNT", amount);
+            const newBalance = account.balance - amount;
+            const nAccount = await this.database.update(id, { balance: newBalance });
+            console.log("NEW BALANCE", nAccount.balance);
+            const newDestinationBalance = dAccount.balance + amount;
+            const nDAccount = await this.database.update(destinationAccount, { balance: newDestinationBalance });
+            console.log("NEW DESTINATION BALANCE", nDAccount.balance);
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.COMPLETED });
+            return {
+                [id]: nAccount,
+                [destinationAccount]: nDAccount,
+            };
+        } catch (error) {
+            await this.transactionService.updateTransaction(transaction.id, { status: TransactionStatus.FAILED });
+            throw error;
+        }
     }
 }
