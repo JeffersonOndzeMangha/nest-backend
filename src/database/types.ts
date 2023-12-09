@@ -1,4 +1,3 @@
-import { type } from "os";
 
 type Maybe<T> = NonNullable<T> | undefined;
 
@@ -10,6 +9,13 @@ export enum AccountType {
 export enum TransactionType {
     DEPOSIT = 'DEPOSIT',
     WITHDRAWAL = 'WITHDRAWAL',
+    TRANSFER = 'TRANSFER',
+}
+
+export enum TransactionStatus {
+    PENDING = 'PENDING',
+    COMPLETED = 'COMPLETED',
+    FAILED = 'FAILED',
 }
 
 export type Person = {
@@ -38,4 +44,5 @@ export type Transaction = {
     amount: number,
     transactionDate: string,
     type: TransactionType,
+    status: TransactionStatus,
 }
