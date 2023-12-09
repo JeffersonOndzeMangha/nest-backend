@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionService } from './transaction.service';
-import { Transaction, TransactionType } from '../database/types';
+import { Transaction, TransactionStatus, TransactionType } from '../database/types';
 import { DB, DBProvider } from '../database';
 import { v4 as uuid4 } from 'uuid';
 
@@ -34,6 +34,7 @@ describe('TransactionService', () => {
         amount: 50,
         type: TransactionType.DEPOSIT,
         transactionDate: date,
+        status: TransactionStatus.COMPLETED,
       };
       const expectedResult = transactionData;
 

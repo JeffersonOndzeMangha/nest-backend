@@ -146,7 +146,7 @@ describe('AccountService', () => {
       expect(result).toEqual(expectedResult);
     });
 
-    it('should throw an error when the destination account does not exist', async () => {
+    it('should throw an error when an account does not exist', async () => {
       const id = Object.keys(database.data)[0];
       const secondId = uuid4();
 
@@ -158,7 +158,8 @@ describe('AccountService', () => {
       try {
         await accountService.transfer(id, accountData);
       } catch (error) {
-        expect(error.message).toEqual('Destination account not found');
+        console.log("ERROR", error)
+        expect(error.message).toBe('Account not found');
       }
     });
 
