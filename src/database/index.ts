@@ -28,7 +28,9 @@ export class DB {
     }
 
     async findOne(id: string) {
-        return this.data[id] ?? null;
+        const found = this.data[id];
+        if (!found) throw new Error('Account not found');
+        return found;
     }
 
     async create(newData: any) {
@@ -39,9 +41,14 @@ export class DB {
     }
 
     async update(id: string, newData: any) {
-        this.data[id] = {...this.data[id], ...newData};
-        await this.write();
-        return this.data[id];
+        try {
+            const oldData = await this.data[id] ?? this.findOne(id);
+            this.data[id] = {...this.data[id], ...newData};
+            await this.write();
+            return this.data[id];
+        } catch (error) {
+            throw error;
+        }
     }
 
     async delete(id: string) {
