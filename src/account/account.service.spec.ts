@@ -53,19 +53,29 @@ describe('AccountService', () => {
   });
 
   describe('getAccountAndInfo', () => {
+
+    it('should get an account and its info', async () => {
+      const id = Object.keys(database.data)[0];
+      const expectedResult = database.data[id];
+      const result = await accountService.listAccounts(id);
+      expect(result).toEqual(expectedResult);
+    });
+
     it('should get an account balance', async () => {
       const id = Object.keys(database.data)[0];
       const expectedResult = database.data[id].balance;
-
+      console.log("EXPECTED Balance", expectedResult);
       const result = await accountService.getBalance(id);
+      console.log("RESULT Balance", result);
       expect(result).toEqual(expectedResult);
     });
 
     it('should get an account statement', async () => {
       const id = Object.keys(database.data)[0];
       const expectedResult = Object.values(transactionService.database.data).filter((transaction: Transaction) => transaction.accounts.includes(id));
-
+      console.log("EXPECTED Transactions", expectedResult);
       const result = await accountService.getStatement(id);
+      console.log("RESULT Transactions", result);
       expect(result).toEqual(expectedResult);
     });
   });
