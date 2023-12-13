@@ -11,6 +11,22 @@ import { Response } from 'express';
 export class AccountController {
     constructor(private readonly accountService: AccountService) {}
 
+    @Get('')
+    /**
+     * List all accounts.
+     * @param res - Response object.
+     * @returns List of accounts or an error response.
+     */
+    async listAccounts( // TODO: Add guard to ensure only admin can list all accounts or list accounts by owner.
+        @Res() res: Response,
+    ) {
+        try {
+            const account = await this.accountService.listAccounts();
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
     
     @Post('/create')
     /**
@@ -29,7 +45,6 @@ export class AccountController {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
     }
-
     
     @Get('/:id')
     /**
@@ -52,25 +67,7 @@ export class AccountController {
     }
 
     
-    @Get('/list')
-    /**
-     * List all accounts.
-     * @param res - Response object.
-     * @returns List of accounts or an error response.
-     */
-    async listAccounts( // TODO: Add guard to ensure only admin can list all accounts or list accounts by owner.
-        @Res() res: Response,
-    ) {
-        try {
-            const account = await this.accountService.listAccounts();
-            return res.status(HttpStatus.OK).json(account);
-        } catch (error) {
-            return res.status(HttpStatus.BAD_REQUEST).json(error);
-        }
-    }
-
-    
-    @Put('/update/:id')
+    @Put('/:id/update')
     /**
      * Update an account by ID.
      * @param res - Response object.
@@ -93,7 +90,7 @@ export class AccountController {
     }
 
     
-    @Delete('/delete/:id')
+    @Delete('/:id/delete')
     /**
      * Delete an account by ID.
      * @param res - Response object.
@@ -114,7 +111,7 @@ export class AccountController {
     }
 
     
-    @Post('/deposit/:id')
+    @Post('/:id/deposit')
     /**
      * Deposit money into an account.
      * @param res - Response object.
@@ -137,7 +134,7 @@ export class AccountController {
     }
 
     
-    @Post('/withdraw/:id')
+    @Post('/:id/withdraw')
     /**
      * Withdraw money from an account.
      * @param res - Response object.
@@ -160,7 +157,7 @@ export class AccountController {
     }
 
     
-    @Post('/transfer/:id')
+    @Post('/:id/transfer')
     /**
      * Transfer money from one account to another.
      * @param res - Response object.

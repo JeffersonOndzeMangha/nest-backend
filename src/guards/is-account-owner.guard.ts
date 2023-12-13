@@ -16,8 +16,9 @@ export class IsAccountOwnerGuard implements CanActivate {
    * @throws Error if the request is unauthorized.
    */
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const { params: { id }, body: { accountOwner } } = context.switchToHttp().getRequest();
+    const { params: { id }, headers } = context.switchToHttp().getRequest();
     const database: DB<Account> = new DB('accounts');
+    const accountOwner = headers['account-owner'];
     try {
     const account = await database.findOne(id);
     const isAuthorized = !id || !accountOwner || !account || account.owner !== accountOwner ? false : true;

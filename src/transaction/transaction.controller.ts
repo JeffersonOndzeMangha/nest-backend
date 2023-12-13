@@ -8,6 +8,24 @@ import { TransactionService } from './transaction.service';
 export class TransactionController {
     constructor(private readonly transactionService: TransactionService) {}
 
+    @Get('')
+    /**
+     * Get a list of transactions for a specific user.
+     * @param res - The response object.
+     * @param id - The ID of the user for whom to retrieve transactions.
+     * @returns A list of transactions for the specified user or an error response.
+     */
+    async listTransactions(
+        @Res() res: any,
+    ) {
+        try {
+            const transaction = await this.transactionService.listTransactions();
+            return res.status(HttpStatus.OK).json(transaction);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
     @Post('/create')
     /**
      * Create a new transaction.
@@ -26,25 +44,7 @@ export class TransactionController {
         }
     }
 
-    @Get('/list/:id')
-    /**
-     * Get a list of transactions for a specific user.
-     * @param res - The response object.
-     * @param id - The ID of the user for whom to retrieve transactions.
-     * @returns A list of transactions for the specified user or an error response.
-     */
-    async listTransactions(
-        @Res() res: any,
-    ) {
-        try {
-            const transaction = await this.transactionService.listTransactions();
-            return res.status(HttpStatus.OK).json(transaction);
-        } catch (error) {
-            return res.status(HttpStatus.BAD_REQUEST).json(error);
-        }
-    }
-
-    @Get('/list/:id')
+    @Get('/:id')
     /**
      * Get a specific transaction by ID.
      * @param res - The response object.
@@ -63,7 +63,7 @@ export class TransactionController {
         }
     }
 
-    @Put('/update/:id')
+    @Put('/:id/update')
     /**
      * Update an existing transaction.
      * @param res - The response object.
@@ -84,7 +84,7 @@ export class TransactionController {
         }
     }
 
-    @Delete('/delete/:id')
+    @Delete('/:id/delete')
     /**
      * Delete an existing transaction.
      * @param res - The response object.

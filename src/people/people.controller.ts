@@ -10,6 +10,23 @@ import { Person, RequestBody } from '../database/types';
 export class PeopleController {
     constructor(private readonly peopleService: PeopleService) {}
 
+    @Get('')
+    /**
+     * Get a list of all people or a specific person by ID.
+     * @param res - The HTTP response object.
+     * @returns A list of all people or the requested person.
+     */
+    async listPeople(
+        @Res() res: Response,
+    ) {
+        try {
+            const people = await this.peopleService.listPeople();
+            return res.status(HttpStatus.OK).json(people);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
+
     @Post('/create')
     /**
      * Create a new person.
@@ -28,28 +45,27 @@ export class PeopleController {
         }
     }
 
-    @Get('/list/:id?')
+    @Get('/:id')
     /**
-     * Get a list of all people or a specific person by ID.
+     * Get a specific person by ID.
      * @param res - The HTTP response object.
-     * @param id - The ID of the person to retrieve (optional).
-     * @returns A list of all people or the requested person.
+     * @param id - The ID of the person to get.
+     * @returns The requested person.
      */
-    async listPeople(
+    async getPerson(
         @Res() res: Response,
-        @Param('id') id?: Person['id']
+        @Param('id') id: Person['id']
     ) {
         try {
-            const people = id
-                ? await this.peopleService.getPerson(id)
-                : await this.peopleService.listPeople();
-            return res.status(HttpStatus.OK).json(people);
+            const person = await this.peopleService.getPerson(id);
+            return res.status(HttpStatus.OK).json(person);
         } catch (error) {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
     }
 
-    @Put('/update/:id')
+
+    @Put('/:id/update')
     /**
      * Update a specific person by ID.
      * @param res - The HTTP response object.
@@ -70,7 +86,7 @@ export class PeopleController {
         }
     }
 
-    @Delete('/delete/:id')
+    @Delete('/:id/delete')
     /**
      * Delete a specific person by ID.
      * @param res - The HTTP response object.

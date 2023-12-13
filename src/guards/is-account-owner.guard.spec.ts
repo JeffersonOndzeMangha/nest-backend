@@ -30,8 +30,9 @@ describe('IsAccountOwnerGuard', () => {
       switchToHttp: () => ({
         getRequest: () => ({
           params: { id: account.id },
-          body: {
-            accountOwner: account.owner,
+          headers: {
+            'x-api-key': '123',
+            'account-owner': account.owner,
           }
         }),
       }),
