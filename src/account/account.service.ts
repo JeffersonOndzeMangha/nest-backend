@@ -146,7 +146,7 @@ export class AccountService {
             status: TransactionStatus.PENDING,
             accounts: [id],
         });
-        console.log("TRANSACTION", transaction)
+        this.logger.log("TRANSACTION", transaction)
         try {
             const account = await this.database.findOne(id);
             const newBalance = account.balance + body.amount;

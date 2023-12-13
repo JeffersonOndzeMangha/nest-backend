@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { DB } from '../database';
 import { Person, RequestBody } from '../database/types';
 
@@ -7,6 +7,7 @@ import { Person, RequestBody } from '../database/types';
  * The `PeopleService` is responsible for handling CRUD operations related to people.
  */
 export class PeopleService {
+    private readonly logger = new Logger(PeopleService.name);
     /**
      * The database instance for managing people data.
      */
@@ -18,7 +19,13 @@ export class PeopleService {
      * @returns The newly created person.
      */
     async createPerson(body: RequestBody<Person>): Promise<Person> {
-        return this.database.create(body);
+        try {
+            const person = await this.database.create(body);
+            return person as Person;
+        } catch (error) {
+            this.logger.error(`Error creating person: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -27,7 +34,12 @@ export class PeopleService {
      * @returns A list of people if no ID is provided, or a single person if an ID is provided.
      */
     async listPeople(): Promise<Array<Person>> {
-        return this.database.find();
+        try {
+            return this.database.find();
+        } catch (error) {
+            this.logger.error(`Error listing people: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -36,7 +48,12 @@ export class PeopleService {
      * @returns The person with the provided ID.
      */
     async getPerson(id: string): Promise<Person> {
-        return this.database.findOne(id);
+        try {
+            return this.database.findOne(id);
+        } catch (error) {
+            this.logger.error(`Error retrieving person: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -46,7 +63,13 @@ export class PeopleService {
      * @returns The updated person.
      */
     async updatePerson(id: string, body: RequestBody<Person>): Promise<Person> {
-        return this.database.update(id, body);
+        try {
+            const person = await this.database.update(id, body);
+            return person;
+        } catch (error) {
+            this.logger.error(`Error updating person: ${error.message}`);
+            throw error;
+        }
     }
 
     /**
@@ -55,6 +78,12 @@ export class PeopleService {
      * @returns The ID of the deleted person.
      */
     async deletePerson(id: string): Promise<Person['id']> {
-        return this.database.delete(id);
+        try {
+            const person = await this.database.delete(id);
+            return person;
+        } catch (error) {
+            this.logger.error(`Error deleting person: ${error.message}`);
+            throw error;
+        }
     }
 }

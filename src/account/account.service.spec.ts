@@ -39,7 +39,6 @@ describe('AccountService', () => {
         accountType: AccountType.CHECKING,
         transactions: [],
         createdDate: new Date().toLocaleDateString(),
-        activeFlag: 'NONE',
       };
 
       const result = await accountService.createAccount(accountData);

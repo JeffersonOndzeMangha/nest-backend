@@ -1,11 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Entity, RequestBody } from './types';
 import { singularize } from '../utils/helper-functions';
 
 @Injectable()
 export class DB<T extends Entity> {
+  private readonly logger = new Logger(DB.name);
   public data: { [key: string]: T } = {};
 
   constructor(private readonly name: string) {
@@ -18,15 +19,22 @@ export class DB<T extends Entity> {
         fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}'
       );
     } catch (error) {
+      this.logger.error(
+        `Error reading ${this.name} database: ${error.message}`
+      );
       this.data = {};
     }
   }
 
   private write() {
-    fs.writeFileSync(
-      `src/database/${this.name}.json`,
-      JSON.stringify(this.data)
-    );
+    try {
+      fs.writeFileSync(
+        `src/database/${this.name}.json`,
+        JSON.stringify(this.data)
+      );
+    } catch (error) {
+      this.logger.error(`Error writing ${this.name} database: ${error.message}`);
+    }
   }
 
   async find(): Promise<Array<T>> {
