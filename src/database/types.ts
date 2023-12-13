@@ -7,6 +7,13 @@ export enum AccountType {
     SAVINGS = 'SAVINGS',   // Savings account type.
 }
 
+// Define an enumeration of account flag values.
+export enum AccountFlag {
+    ACTIVE = 'ACTIVE',     // Account is active.
+    INACTIVE = 'INACTIVE', // Account is inactive.
+    BLOCKED = 'BLOCKED',   // Account is blocked.
+}
+
 // Define an enumeration of transaction types.
 export enum TransactionType {
     DEPOSIT = 'DEPOSIT',       // Deposit transaction type.
@@ -37,7 +44,7 @@ export type Account = {
     owner: Person['id']; // ID of the account owner (a person).
     balance: number; // Current balance of the account.
     dailyWithdrawalLimit: number; // Daily withdrawal limit for the account.
-    activeFlag: Maybe<String>; // Optional flag indicating the account's status.
+    activeFlag: Maybe<AccountFlag>; // Optional flag indicating the account's status.
     accountType: AccountType; // Type of the account (e.g., CHECKING or SAVINGS).
     createdDate: string; // Date when the account was created.
     transactions: Array<Transaction['id']>; // Optional array of transaction IDs associated with the account.

@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Res, UseGuards } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { IsAccountOwnerGuard } from '../guards/is-account-owner.guard';
-import { Account, RequestBody } from '../database/types';
+import { Account, AccountFlag, RequestBody } from '../database/types';
 import { Response } from 'express';
 
 @Controller('accounts')
@@ -65,7 +65,6 @@ export class AccountController {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
     }
-
     
     @Put('/:id/update')
     /**
@@ -89,6 +88,25 @@ export class AccountController {
         }
     }
 
+    @Put('/:id/block')
+    /**
+     * Block an account by ID.
+     * @param res - Response object.
+     * @param id -  Account ID.
+     * @returns The blocked account ID or an error response.
+     */
+    @UseGuards(IsAccountOwnerGuard)
+    async blockAccount(
+        @Res() res: Response,
+        @Param('id') id: Account['id']
+    ) {
+        try {
+            const account = await this.accountService.updateAccount(id, { activeFlag: AccountFlag.BLOCKED });
+            return res.status(HttpStatus.OK).json(account);
+        } catch (error) {
+            return res.status(HttpStatus.BAD_REQUEST).json(error);
+        }
+    }
     
     @Delete('/:id/delete')
     /**
@@ -109,7 +127,6 @@ export class AccountController {
             return res.status(HttpStatus.BAD_REQUEST).json(error);
         }
     }
-
     
     @Post('/:id/deposit')
     /**
