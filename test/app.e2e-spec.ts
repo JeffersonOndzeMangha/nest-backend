@@ -63,22 +63,24 @@ describe('AppModule (e2e)', () => {
     try {
       const { body } = await request(app.getHttpServer(), )
         .get(`/people/${user}`);
+      if (!body.id) throw body;
       console.log("PERSON:", body);
       expect(body.id).toBeDefined();
     } catch (error) {
-      console.log(error.message);
-      expect(error).toBeDefined();
+      console.log("ERROR", error);
+      expect(error.status).toEqual(404);
     }
   });
 
   it('/transactions/:id (GET)', async () => {
     try {
       const { body } = await request(app.getHttpServer()).get('/transactions/3dce9ae8-2498-47f1-8671-971fecc875ba');
+      if (!body.id) throw body;
       console.log("TRANSACTION:", body);
       expect(body.id).toBeDefined();
     } catch (error) {
-      console.log(error);
-      expect(error).toBeDefined();
+      console.log("ERROR", error);
+      expect(error.status).toEqual(404);
     }
   });
 
