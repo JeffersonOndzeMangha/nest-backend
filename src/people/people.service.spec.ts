@@ -6,7 +6,7 @@ import { PeopleService } from './people.service';
 
 describe('PeopleService', () => {
   let peopleService: PeopleService;
-  let database: jest.Mocked<DB>;
+  let database: DB<Person>;
 
   beforeEach(async () => {
     const dbProvider = DBProvider('people');
@@ -19,7 +19,7 @@ describe('PeopleService', () => {
     }).compile();
 
     peopleService = module.get<PeopleService>(PeopleService);
-    database = module.get<jest.Mocked<DB>>(DB);
+    database = peopleService.database;
   });
 
   it('should be defined', () => {
@@ -28,25 +28,24 @@ describe('PeopleService', () => {
 
   describe('createPerson', () => {
     it('should create a person', async () => {
-      const personData:Person = {
-        id: uuid4(),
+      const personData = {
         document: '123456789',
         name: 'John Doe'+Math.random(),
         birthDate: new Date('1997-03-25').toLocaleDateString(),
         email: 'jeffersonondzemangha@gmail.com',
         accounts: []
       };
-      const expectedResult = personData;
+      
       const result = await peopleService.createPerson(personData);
-      expect(result).toEqual(expectedResult);
+      expect(result.id).toBeDefined();
     });
   });
 
   describe('listPeople', () => {
     it('should list all people when no id is provided', async () => {
-      const expectedResult = database.data;
+      const expectedResult = Object.values(database.data);
 
-      const result = await peopleService.listPeople(null);
+      const result = await peopleService.listPeople();
       expect(result).toEqual(expectedResult);
     });
 
@@ -54,7 +53,7 @@ describe('PeopleService', () => {
       const id = Object.keys(database.data)[0];
       const expectedResult = database.data[id];
 
-      const result = await peopleService.listPeople(id);
+      const result = await peopleService.getPerson(id);
       expect(result).toEqual(expectedResult);
     });
   });

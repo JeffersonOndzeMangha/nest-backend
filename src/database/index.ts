@@ -1,98 +1,80 @@
 import { v4 as uuidv4 } from 'uuid';
 import * as fs from 'fs';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Entity, RequestBody } from './types';
+import { singularize } from '../utils/helper-functions';
 
-export class DB {
-    public name: string;
-    public data: {
-        [key: string]: any
-    };
+@Injectable()
+export class DB<T extends Entity> {
+  public data: { [key: string]: T } = {};
 
-    constructor(name: string) {
-        this.name = name;
-        this.data = this.read();
+  constructor(private readonly name: string) {
+    this.read();
+  }
+
+  private read() {
+    try {
+      this.data = JSON.parse(
+        fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}'
+      );
+    } catch (error) {
+      this.data = {};
     }
+  }
 
-    read() {
-        return JSON.parse(fs.readFileSync(`src/database/${this.name}.json`, 'utf8') ?? '{}');
-    }
+  private write() {
+    fs.writeFileSync(
+      `src/database/${this.name}.json`,
+      JSON.stringify(this.data)
+    );
+  }
 
-    async write() {
-        fs.writeFileSync(`src/database/${this.name}.json`, JSON.stringify(this.data));
-        this.read();
-    }
+  async find(): Promise<Array<T>> {
+    return Object.values(this.data ?? {});
+  }
 
-    async find() {
-        if (this.data) return this.data;
-        await this.read();
-        return this.data;
+  async findOne(id: string): Promise<T> {
+    const found = this.data[id];
+    if (!found) {
+      throw new NotFoundException(`${singularize(this.name)} not found`);
     }
+    return found;
+  }
 
-    async findOne(id: string) {
-        const found = this.data[id];
-        if (!found) throw new Error('Account not found');
-        return found;
-    }
+  async create(newData: RequestBody<T>): Promise<T> {
+    const id = uuidv4();
+    this.data[id] = {...newData, id} as T;
+    this.write();
+    return this.data[id];
+  }
 
-    async create(newData: any) {
-        const id = newData.id ?? uuidv4();
-        this.data[id] = newData;
-        await this.write();
-        return this.data[id];
+  async update(id: string, newData: RequestBody<T>): Promise<T> {
+    if (!this.data[id]) {
+      throw new NotFoundException(`${singularize(this.name)} not found`);
     }
+    this.data[id] = { ...this.data[id], ...newData };
+    this.write();
+    return this.data[id];
+  }
 
-    async update(id: string, newData: any) {
-        try {
-            const oldData = await this.data[id] ?? this.findOne(id);
-            this.data[id] = {...this.data[id], ...newData};
-            await this.write();
-            return this.data[id];
-        } catch (error) {
-            throw error;
-        }
+  async delete(id: string): Promise<string> {
+    if (!this.data[id]) {
+      throw new NotFoundException(`${singularize(this.name)} not found`);
     }
+    delete this.data[id];
+    this.write();
+    return id;
+  }
 
-    async delete(id: string) {
-        delete this.data[id];
-        await this.write();
-        return id;
-    }
-
-    async deleteAll() {
-        this.data = {};
-        await this.write();
-        return this.data;
-    }
+  async deleteAll(): Promise<{ [key: string]: T } | {}> {
+    this.data = {};
+    this.write();
+    return this.data;
+  }
 }
 
-export const DBProvider = (name: string) => {
-    return {
-        provide: DB,
-        useFactory: () => {
-            const mockDatabase = {
-                name: name,
-                data: JSON.parse(fs.readFileSync(`src/database/${name}.json`, 'utf8') ?? '{}'),
-                create: jest.fn(),
-                find: jest.fn(),
-                findOne: jest.fn(),
-                update: jest.fn(),
-                delete: jest.fn(),
-                read: jest.fn(),
-                write: jest.fn(),
-                deleteAll: jest.fn(),
-            };
-            return mockDatabase;
-        },
-    };
-};
+export const DBProvider = (name: string) => ({
+    provide: DB,
+    useValue: new DB(name),
+});
 
-// export const database = {
-//     accounts: new DB('accounts'),
-//     people: new DB('people'),
-//     transactions: new DB('transactions'),
-// };
-
-// export const resetDatabase = async () => {
-//     await database.accounts.deleteAll();
-//     await database.people.deleteAll();
-//     await database.transactions.deleteAll();
-// };

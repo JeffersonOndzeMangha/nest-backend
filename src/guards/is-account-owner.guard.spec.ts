@@ -1,9 +1,10 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { IsAccountOwnerGuard } from './is-account-owner.guard';
 import { DB, DBProvider } from '../database';
+import { Account } from '../database/types';
 
 describe('IsAccountOwnerGuard', () => {
-  let database: DB;
+  let database: DB<Account>;
 
   beforeEach(async () => {
     const dbProvider = DBProvider('accounts');
@@ -14,7 +15,7 @@ describe('IsAccountOwnerGuard', () => {
       ],
     }).compile();
 
-    database = module.get<DB>(DB);
+    database = module.get<DB<Account>>(DB);
   });
 
   it('should be defined', () => {
@@ -23,7 +24,7 @@ describe('IsAccountOwnerGuard', () => {
 
   it('should return true', async () => {
     const guard = new IsAccountOwnerGuard();
-    const account = await database.data[Object.keys(database.data)[0]];
+    const account = database.data[Object.keys(database.data)[0]];
 
     const context = {
       switchToHttp: () => ({
@@ -41,7 +42,7 @@ describe('IsAccountOwnerGuard', () => {
 
   it('should return an error', async () => {
     const guard = new IsAccountOwnerGuard();
-    const account = await database.data[Object.keys(database.data)[0]];
+    const account = database.data[Object.keys(database.data)[0]];
 
     const context = {
       switchToHttp: () => ({
@@ -56,7 +57,7 @@ describe('IsAccountOwnerGuard', () => {
     try {
       await guard.canActivate(context as any);
     } catch (error) {
-      expect(error.message).toBe('Unauthorized');
+      expect(error.message).toEqual('Unauthorized');
     }
   });
 
