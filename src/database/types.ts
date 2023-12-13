@@ -68,7 +68,15 @@ export type Entity = Person | Account | Transaction;
 export type RequestBody<T> = Partial<Omit<T, 'id' | 'accounts'>> & { accounts?: Array<Account['id']> };
 export type TransactionRequestBody = RequestBody<Transaction> & { destinationAccount?: Account['id'] };
 
-// Can define a type for database CreateCreateInput that is a partial of the entity type as well as an UpdateInput type
-// export type CreateInput<T> = Partial<Omit<T, 'id'>>;
+// Can define a type for database AccountCreateInput class that can be used to validate request bodies.
+// export class AccountCreateInput {
+//   @IsString()
+//   name: string;
+
+//   @IsNumber()
+//   balance: number;
+
+//   // etc...
+// }
 
 
